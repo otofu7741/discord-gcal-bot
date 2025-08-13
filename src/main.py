@@ -165,7 +165,7 @@ async def delete_event(ctx, *, event_title: str):
 async def help_calendar(ctx):
     """カレンダーボットのヘルプを表示"""
     # 今日の日付を取得（例で使用）
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.now(tz=pytz.timezone("Asia/Tokyo")).strftime("%Y-%m-%d")
 
     embed = discord.Embed(
         title="📅 カレンダーボット ヘルプ",
