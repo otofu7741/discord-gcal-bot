@@ -80,7 +80,7 @@ async def on_ready():
 async def add_event(ctx, *, event_description: str):
     """
     カレンダーにイベントを追加
-    使用例: !add_event 2024-08-15 10:00-11:00 会議
+    使用例: !add_event 2025-08-14 10:00-11:00 会議
     """
     try:
         logger.info(f"📝 イベント追加要求: {event_description} (by {ctx.author})")
@@ -164,6 +164,9 @@ async def delete_event(ctx, *, event_title: str):
 @bot.command(name="help_calendar")
 async def help_calendar(ctx):
     """カレンダーボットのヘルプを表示"""
+    # 今日の日付を取得（例で使用）
+    today = datetime.now().strftime("%Y-%m-%d")
+
     embed = discord.Embed(
         title="📅 カレンダーボット ヘルプ",
         description="Google カレンダーと連携するDiscord botです",
@@ -172,7 +175,7 @@ async def help_calendar(ctx):
 
     embed.add_field(
         name="!add_event <詳細>",
-        value="イベントを追加\n例: `!add_event 2024-08-15 10:00-11:00 会議`",
+        value=f"イベントを追加\n例: `!add_event {today} 10:00-11:00 会議`",
         inline=False,
     )
 
