@@ -170,14 +170,30 @@ class GoogleCalendarManager:
             }
 
             # Google Calendarにイベントを作成
+            print("🔄 カレンダーへイベント挿入中...")
+            print(f"📋 カレンダーID: {self.calendar_id}")
+            print(f"📝 イベントデータ: {event}")
+
             created_event = (
                 self.service.events().insert(calendarId=self.calendar_id, body=event).execute()
             )
 
+            print(f"✅ イベント作成成功: {created_event.get('id', 'N/A')}")
+            print(f"🔗 イベントリンク: {created_event.get('htmlLink', 'N/A')}")
+
             return created_event
 
+        except HttpError as e:
+            print(f"❌ Google Calendar API エラー: {e}")
+            print(f"   ステータス: {e.resp.status}")
+            print(f"   詳細: {e.content}")
+            return None
         except Exception as e:
-            print(f"イベント作成エラー: {e}")
+            print(f"❌ イベント作成エラー: {e}")
+            print(f"   エラータイプ: {type(e).__name__}")
+            import traceback
+
+            traceback.print_exc()
             return None
 
     async def get_upcoming_events(self, days: int = 7) -> List[Dict]:
