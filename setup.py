@@ -145,6 +145,30 @@ def setup_env_file():
 
     delegated_user = input("委任ユーザーのメールアドレス (オプション): ").strip()
 
+    print()
+    print("カレンダーWebリンク設定:")
+    print("- Discord で「カレンダーを開く」リンクとして表示されます")
+    print("- 基本形式: https://calendar.google.com/calendar/u/0/embed?src=EMAIL&ctz=TIMEZONE")
+    print(
+        "- 例: https://calendar.google.com/calendar/u/0/embed?src=p.tech.challenge.club@gmail.com&ctz=Asia/Tokyo"
+    )
+    print()
+
+    # カレンダーIDからデフォルトURLを生成
+    default_calendar_url = ""
+    if "@" in calendar_id:
+        default_calendar_url = (
+            f"https://calendar.google.com/calendar/u/0/embed?src={calendar_id}&ctz=Asia/Tokyo"
+        )
+
+    if default_calendar_url:
+        print(f"推奨URL: {default_calendar_url}")
+        calendar_web_url = input("カレンダーWebリンク (デフォルト: 上記): ").strip()
+        if not calendar_web_url:
+            calendar_web_url = default_calendar_url
+    else:
+        calendar_web_url = input("カレンダーWebリンク: ").strip()
+
     # .envファイルを作成
     env_content = f"""# Discord Bot設定
 DISCORD_TOKEN={discord_token}
@@ -157,6 +181,14 @@ GOOGLE_CALENDAR_ID={calendar_id}"""
         env_content += f"\nGOOGLE_DELEGATED_USER={delegated_user}"
     else:
         env_content += "\n# GOOGLE_DELEGATED_USER=user@yourdomain.com"
+
+    # カレンダーWebリンクを追加
+    if calendar_web_url:
+        env_content += (
+            f"\n\n# Google Calendar Web UI設定\nGOOGLE_CALENDAR_WEB_URL={calendar_web_url}"
+        )
+    else:
+        env_content += "\n\n# Google Calendar Web UI設定\n# GOOGLE_CALENDAR_WEB_URL=https://calendar.google.com/calendar/u/0/embed?src=your_calendar@gmail.com&ctz=Asia/Tokyo"
 
     env_content += """
 

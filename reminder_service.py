@@ -18,6 +18,21 @@ class ReminderService:
         self.notified_events: Set[str] = set()  # 通知済みイベントのID
         self.is_running = False
 
+    def _get_calendar_link(self) -> str:
+        """カレンダーのWebリンクを取得"""
+        return os.getenv("GOOGLE_CALENDAR_WEB_URL", "")
+
+    def _add_calendar_link_to_embed(self, embed: discord.Embed) -> discord.Embed:
+        """Embedにカレンダーリンクを追加"""
+        calendar_url = self._get_calendar_link()
+        if calendar_url:
+            embed.add_field(
+                name="🔗 カレンダーを開く",
+                value=f"[Google Calendar で確認]({calendar_url})",
+                inline=False,
+            )
+        return embed
+
     def start_reminder_loop(self):
         """リマインダーループを開始"""
         if not self.is_running:
@@ -104,6 +119,9 @@ class ReminderService:
 
             embed.set_footer(text="Google Calendar連携")
 
+            # カレンダーリンクを追加
+            embed = self._add_calendar_link_to_embed(embed)
+
             await channel.send(embed=embed)
             print(f"リマインダー送信: {title}")
 
@@ -166,6 +184,10 @@ class ReminderService:
                     embed.add_field(name=title, value=f"🕐 {time_str}", inline=False)
 
             embed.set_footer(text="良い一日をお過ごしください！")
+
+            # カレンダーリンクを追加
+            embed = self._add_calendar_link_to_embed(embed)
+
             await channel.send(embed=embed)
 
         except Exception as e:

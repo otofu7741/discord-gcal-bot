@@ -31,6 +31,23 @@ gcal_manager = GoogleCalendarManager()
 reminder_service = ReminderService(bot, gcal_manager)
 
 
+def get_calendar_link() -> Optional[str]:
+    """カレンダーのWebリンクを取得"""
+    return os.getenv("GOOGLE_CALENDAR_WEB_URL")
+
+
+def add_calendar_link_to_embed(embed: discord.Embed) -> discord.Embed:
+    """Embedにカレンダーリンクを追加"""
+    calendar_url = get_calendar_link()
+    if calendar_url:
+        embed.add_field(
+            name="🔗 カレンダーを開く",
+            value=f"[Google Calendar で確認]({calendar_url})",
+            inline=False,
+        )
+    return embed
+
+
 @bot.event
 async def on_ready():
     """Bot起動時の処理"""
@@ -77,6 +94,7 @@ async def add_event(ctx, *, event_description: str):
                 f"🕐 {event['start']['dateTime'][11:16]} - {event['end']['dateTime'][11:16]}",
                 color=0x00FF00,
             )
+            embed = add_calendar_link_to_embed(embed)
             await ctx.send(embed=embed)
         else:
             logger.warning(f"⚠️ イベント追加失敗: 形式エラー - {event_description}")
@@ -113,6 +131,7 @@ async def list_events(ctx, days: int = 7):
 
             embed.add_field(name=event["summary"], value=f"🕐 {time_str}", inline=False)
 
+        embed = add_calendar_link_to_embed(embed)
         await ctx.send(embed=embed)
     except Exception as e:
         logger.error(f"イベント取得エラー: {e}")
@@ -133,6 +152,7 @@ async def delete_event(ctx, *, event_title: str):
                 description=f"「{event_title}」を削除しました",
                 color=0xFF9900,
             )
+            embed = add_calendar_link_to_embed(embed)
             await ctx.send(embed=embed)
         else:
             await ctx.send(f"❌ 「{event_title}」というイベントが見つかりませんでした。")
@@ -166,6 +186,7 @@ async def help_calendar(ctx):
         inline=False,
     )
 
+    embed = add_calendar_link_to_embed(embed)
     await ctx.send(embed=embed)
 
 
