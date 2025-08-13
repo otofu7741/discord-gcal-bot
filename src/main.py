@@ -9,8 +9,8 @@ import pytz
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 
-from google_calendar import GoogleCalendarManager
-from reminder_service import ReminderService
+from .google_calendar import GoogleCalendarManager
+from .reminder_service import ReminderService
 
 # 環境変数の読み込み
 load_dotenv()

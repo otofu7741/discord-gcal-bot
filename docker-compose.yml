@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  discord-calendar-bot:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: discord-calendar-bot
+    restart: unless-stopped
+    
+    # 環境変数ファイル
+    env_file:
+      - config/.env
+    
+    # ボリュームマウント（設定ファイルの永続化）
+    volumes:
+      - ./credentials:/app/credentials:ro
+      - bot-data:/app/data
+    
+    # ログ設定
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # メモリ制限
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    
+    # ヘルスチェック
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  bot-data:
+    driver: local

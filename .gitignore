@@ -2,8 +2,6 @@
 .env
 
 # Google API認証情報
-credentials.json
-token.json
 service-account-key.json
 credentials/
 

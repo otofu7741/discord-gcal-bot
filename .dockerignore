@@ -1,0 +1,45 @@
+# Git関連
+.git
+.gitignore
+
+# Python関連
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache
+*.egg-info
+
+# 仮想環境
+.venv
+venv/
+env/
+
+# IDEファイル
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS関連
+.DS_Store
+Thumbs.db
+
+# ログファイル
+*.log
+
+# Docker関連
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# 開発用ファイル
+README.md
+.env.example
+setup.py
+
+# テストファイル
+tests/
+test_*

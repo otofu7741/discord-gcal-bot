@@ -40,7 +40,7 @@ cd discord-gcal-bot
 ### 2. 自動セットアップ
 
 ```bash
-python setup.py
+python scripts/setup.py
 ```
 
 このスクリプトが以下を行います：
@@ -49,7 +49,21 @@ python setup.py
 - 環境変数ファイルの作成
 - 依存関係のインストール
 
-### 3. 手動セットアップ（必要に応じて）
+### 3. Docker での起動（推奨）
+
+```bash
+# 設定ファイルを作成
+cp config/.env.example config/.env
+# .envファイルを編集して設定値を入力
+
+# Docker Compose で起動
+docker-compose up -d
+
+# ログ確認
+docker-compose logs -f
+```
+
+### 4. 手動セットアップ（開発環境）
 
 #### Google Calendar API設定（サービスアカウント方式）
 
@@ -62,7 +76,7 @@ python setup.py
    - サービスアカウント名を入力（例: discord-calendar-bot）
    - キーを作成 → JSON形式でダウンロード
    - ダウンロードしたファイルを `service-account-key.json` にリネーム
-   - プロジェクトルートに配置
+   - `credentials/` ディレクトリに配置
 
 6. **カレンダーの共有設定**（重要）:
    - Google Calendar で対象のカレンダー設定を開く
@@ -82,13 +96,14 @@ python setup.py
 
 #### 環境変数設定
 
-`.env` ファイルを作成：
+`config/.env` ファイルを作成：
 
 ```env
 DISCORD_TOKEN=your_discord_bot_token
-GOOGLE_SERVICE_ACCOUNT_PATH=service-account-key.json
+GOOGLE_SERVICE_ACCOUNT_PATH=credentials/service-account-key.json
 GOOGLE_CALENDAR_ID=primary
 # GOOGLE_DELEGATED_USER=user@yourdomain.com  # Google Workspace環境の場合
+GOOGLE_CALENDAR_WEB_URL=https://calendar.google.com/calendar/embed?src=your_calendar_id_here&ctz=Asia/Tokyo
 TIMEZONE=Asia/Tokyo
 REMINDER_CHANNEL_ID=your_reminder_channel_id
 ```
@@ -107,8 +122,14 @@ pip install discord.py google-api-python-client google-auth python-dateutil pytz
 
 ### Bot起動
 
+#### Docker での起動（推奨）
 ```bash
-python main.py
+docker-compose up -d
+```
+
+#### 開発環境での起動
+```bash
+python src/main.py
 ```
 
 サービスアカウント方式のため、ブラウザでの認証は不要です。
@@ -147,14 +168,23 @@ python main.py
 
 ```
 discord-gcal-bot/
-├── main.py                      # メインのBot実行ファイル
-├── google_calendar.py           # Google Calendar API管理（サービスアカウント方式）
-├── reminder_service.py          # リマインダー機能
-├── setup.py                    # セットアップスクリプト
+├── src/                         # ソースコード
+│   ├── __init__.py
+│   ├── main.py                  # メインのBot実行ファイル
+│   ├── google_calendar.py       # Google Calendar API管理（サービスアカウント方式）
+│   └── reminder_service.py      # リマインダー機能
+├── docker/                      # Docker関連ファイル
+│   ├── Dockerfile              # Dockerイメージビルド設定
+│   └── docker-entrypoint.sh    # コンテナ起動スクリプト
+├── config/                      # 設定ファイル
+│   ├── .env.example            # 環境変数テンプレート
+│   └── .env                    # 環境変数（作成される）
+├── credentials/                 # 認証情報（gitignore対象）
+│   └── service-account-key.json # サービスアカウントキー
+├── scripts/                     # ユーティリティスクリプト
+│   └── setup.py               # セットアップスクリプト
+├── docker-compose.yml          # Docker Compose設定
 ├── pyproject.toml              # プロジェクト設定
-├── .env.example                # 環境変数テンプレート
-├── .env                        # 環境変数（作成される）
-├── service-account-key.json    # サービスアカウントキー（Google Cloudから取得）
 └── README.md                   # このファイル
 ```
 
