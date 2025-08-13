@@ -99,13 +99,21 @@ docker-compose logs -f
 `config/.env` ファイルを作成：
 
 ```env
-DISCORD_TOKEN=your_discord_bot_token
+# Discord Bot設定
+DISCORD_TOKEN=your_discord_bot_token_here
+
+# Google Calendar API設定（サービスアカウント方式）
 GOOGLE_SERVICE_ACCOUNT_PATH=credentials/service-account-key.json
 GOOGLE_CALENDAR_ID=primary
-# GOOGLE_DELEGATED_USER=user@yourdomain.com  # Google Workspace環境の場合
+# 特定のユーザーとして動作する場合（Google Workspace環境）
+# GOOGLE_DELEGATED_USER=user@yourdomain.com
+
+# Google Calendar Web UI設定
 GOOGLE_CALENDAR_WEB_URL=https://calendar.google.com/calendar/embed?src=your_calendar_id_here&ctz=Asia/Tokyo
+
+# その他設定
 TIMEZONE=Asia/Tokyo
-REMINDER_CHANNEL_ID=your_reminder_channel_id
+REMINDER_CHANNEL_ID=your_reminder_channel_id_here
 ```
 
 ### 4. 依存関係のインストール
