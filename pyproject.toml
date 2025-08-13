@@ -1,0 +1,15 @@
+[project]
+name = "discord-gcal-bot"
+version = "0.1.0"
+description = "Discord bot for Google Calendar integration with event management and reminders"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "discord.py>=2.3.0",
+    "google-api-python-client>=2.100.0",
+    "google-auth>=2.23.0",
+    "python-dateutil>=2.8.2",
+    "pytz>=2023.3",
+    "python-dotenv>=1.0.0",
+    "asyncio-scheduler>=0.1.0",
+]

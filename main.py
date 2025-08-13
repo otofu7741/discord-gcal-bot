@@ -1,0 +1,165 @@
+import os
+import asyncio
+import logging
+from datetime import datetime, timedelta
+from typing import Optional
+
+import discord
+from discord.ext import commands, tasks
+from dotenv import load_dotenv
+import pytz
+
+from google_calendar import GoogleCalendarManager
+from reminder_service import ReminderService
+
+# 環境変数の読み込み
+load_dotenv()
+
+# ログ設定
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Discord Bot設定
+intents = discord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix='!', intents=intents)
+
+# Google Calendar Manager
+gcal_manager = GoogleCalendarManager()
+
+# Reminder Service
+reminder_service = ReminderService(bot, gcal_manager)
+
+@bot.event
+async def on_ready():
+    """Bot起動時の処理"""
+    logger.info(f'{bot.user} がログインしました！')
+    await gcal_manager.initialize()
+    reminder_service.start_reminder_loop()
+
+@bot.command(name='add_event')
+async def add_event(ctx, *, event_description: str):
+    """
+    カレンダーにイベントを追加
+    使用例: !add_event 2024-08-15 10:00-11:00 会議
+    """
+    try:
+        event = await gcal_manager.parse_and_create_event(event_description)
+        if event:
+            embed = discord.Embed(
+                title="✅ イベントが追加されました",
+                description=f"**{event['summary']}**\n"
+                           f"📅 {event['start']['dateTime'][:10]}\n"
+                           f"🕐 {event['start']['dateTime'][11:16]} - {event['end']['dateTime'][11:16]}",
+                color=0x00ff00
+            )
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send("❌ イベントの追加に失敗しました。形式を確認してください。")
+    except Exception as e:
+        logger.error(f"イベント追加エラー: {e}")
+        await ctx.send(f"❌ エラーが発生しました: {str(e)}")
+
+@bot.command(name='list_events')
+async def list_events(ctx, days: int = 7):
+    """
+    今後のイベントを表示
+    使用例: !list_events 7
+    """
+    try:
+        events = await gcal_manager.get_upcoming_events(days)
+        if not events:
+            await ctx.send("📅 今後のイベントはありません。")
+            return
+        
+        embed = discord.Embed(
+            title=f"📅 今後 {days} 日のイベント",
+            color=0x0099ff
+        )
+        
+        for event in events[:10]:  # 最大10件まで表示
+            start_time = event['start'].get('dateTime', event['start'].get('date'))
+            if 'T' in start_time:
+                # 日時形式
+                dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                time_str = dt.strftime('%m/%d %H:%M')
+            else:
+                # 日付のみ
+                dt = datetime.fromisoformat(start_time)
+                time_str = dt.strftime('%m/%d (終日)')
+            
+            embed.add_field(
+                name=event['summary'],
+                value=f"🕐 {time_str}",
+                inline=False
+            )
+        
+        await ctx.send(embed=embed)
+    except Exception as e:
+        logger.error(f"イベント取得エラー: {e}")
+        await ctx.send(f"❌ エラーが発生しました: {str(e)}")
+
+@bot.command(name='delete_event')
+async def delete_event(ctx, *, event_title: str):
+    """
+    イベントを削除
+    使用例: !delete_event 会議
+    """
+    try:
+        success = await gcal_manager.delete_event_by_title(event_title)
+        if success:
+            embed = discord.Embed(
+                title="✅ イベントが削除されました",
+                description=f"「{event_title}」を削除しました",
+                color=0xff9900
+            )
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send(f"❌ 「{event_title}」というイベントが見つかりませんでした。")
+    except Exception as e:
+        logger.error(f"イベント削除エラー: {e}")
+        await ctx.send(f"❌ エラーが発生しました: {str(e)}")
+
+@bot.command(name='help_calendar')
+async def help_calendar(ctx):
+    """カレンダーボットのヘルプを表示"""
+    embed = discord.Embed(
+        title="📅 カレンダーボット ヘルプ",
+        description="Google カレンダーと連携するDiscord botです",
+        color=0x0099ff
+    )
+    
+    embed.add_field(
+        name="!add_event <詳細>",
+        value="イベントを追加\n例: `!add_event 2024-08-15 10:00-11:00 会議`",
+        inline=False
+    )
+    
+    embed.add_field(
+        name="!list_events [日数]",
+        value="今後のイベントを表示\n例: `!list_events 7`",
+        inline=False
+    )
+    
+    embed.add_field(
+        name="!delete_event <タイトル>",
+        value="イベントを削除\n例: `!delete_event 会議`",
+        inline=False
+    )
+    
+    await ctx.send(embed=embed)
+
+def main():
+    """メイン関数"""
+    token = os.getenv('DISCORD_TOKEN')
+    if not token:
+        logger.error("DISCORD_TOKENが設定されていません")
+        return
+    
+    try:
+        bot.run(token)
+    except Exception as e:
+        logger.error(f"Bot実行エラー: {e}")
+
+if __name__ == "__main__":
+    main()
