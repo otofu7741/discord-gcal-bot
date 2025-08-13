@@ -57,10 +57,10 @@ cp config/.env.example config/.env
 # .envファイルを編集して設定値を入力
 
 # Docker Compose で起動
-docker-compose up -d
+docker compose up -d
 
 # ログ確認
-docker-compose logs -f
+docker compose logs -f
 ```
 
 ### 4. 手動セットアップ（開発環境）
@@ -132,7 +132,7 @@ pip install discord.py google-api-python-client google-auth python-dateutil pytz
 
 #### Docker での起動（推奨）
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 #### 開発環境での起動

@@ -278,19 +278,19 @@ CMD ["python", "src/main.py"]
 
 def create_docker_compose():
     """docker-compose.yml の作成"""
-    compose_content = """version: '3.8'
-
-services:
+    compose_content = """services:
   discord-bot:
     build:
       context: .
       dockerfile: docker/Dockerfile
+    container_name: discord-calendar-bot
+    restart: unless-stopped
+    env_file:
+      - config/.env
     volumes:
-      - ./config:/app/config:ro
       - ./credentials:/app/credentials:ro
     environment:
       - PYTHONPATH=/app
-    restart: unless-stopped
     networks:
       - bot-network
 
