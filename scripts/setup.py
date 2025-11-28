@@ -162,7 +162,7 @@ def setup_env_file():
         return False
 
     # Google Calendar設定を取得
-    existing_service_file = existing_config.get("GOOGLE_SERVICE_ACCOUNT_FILE", "")
+    existing_service_file = existing_config.get("GOOGLE_SERVICE_ACCOUNT_PATH", "")
     existing_calendar_id = existing_config.get("GOOGLE_CALENDAR_ID", "")
 
     if existing_service_file and existing_calendar_id:
@@ -188,7 +188,7 @@ def setup_env_file():
 DISCORD_TOKEN={discord_token}
 
 # Google Calendar設定
-GOOGLE_SERVICE_ACCOUNT_FILE={google_config["service_account_file"]}
+GOOGLE_SERVICE_ACCOUNT_PATH={google_config["service_account_file"]}
 GOOGLE_CALENDAR_ID={google_config["calendar_id"]}
 
 # ログレベル (DEBUG, INFO, WARNING, ERROR)
